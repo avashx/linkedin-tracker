@@ -1,0 +1,21 @@
+{
+  "manifest_version": 3,
+  "name": "LinkedIn Profile View Tracker",
+  "version": "1.0",
+  "description": "Tracks who viewed your LinkedIn profile",
+  "permissions": ["alarms", "storage", "tabs", "cookies", "webNavigation"],
+  "host_permissions": ["*://*.linkedin.com/*"],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": "icons/icon.png"
+  },
+  "content_scripts": [
+    {
+      "matches": ["*://*.linkedin.com/me/profile-views/*"],
+      "js": ["content.js"]
+    }
+  ]
+}
