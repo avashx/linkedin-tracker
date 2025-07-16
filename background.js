@@ -27,6 +27,11 @@ async function scrapeLinkedIn(manual = false) {
 
       chrome.tabs.onUpdated.addListener(function listener(tabId, info) {
         if (tabId === tab.id && info.status === 'complete') {
+            // Capture screenshot for debugging
+chrome.tabs.captureVisibleTab(tab.id, { format: 'png' }, (dataUrl) => {
+  chrome.downloads.download({ url: dataUrl, filename: 'debug_screenshot.png', saveAs: false });
+  logToStorage('DEBUG', 'Screenshot saved as debug_screenshot.png');
+});
           chrome.tabs.sendMessage(tab.id, { action: 'scrape' }, (response) => {
             if (response) {
               chrome.storage.local.get('viewers', (data) => {
