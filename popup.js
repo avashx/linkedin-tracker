@@ -26,15 +26,20 @@ document.addEventListener('DOMContentLoaded', () => {
   chrome.storage.onChanged.addListener(updateDashboard);
 
   function updateDashboard() {
-    chrome.storage.local.get(['viewers', 'logs'], (data) => {
-      const viewers = data.viewers || [];
-      totalViewers.textContent = `Total Viewers: ${viewers.length}`;
-      tableBody.innerHTML = viewers.map(v => `<tr><td>${v.name || 'N/A'}</td><td>${v.headline || 'N/A'}</td><td>${v.company || 'N/A'}</td><td>${v.timestamp || 'N/A'}</td></tr>`).join('');
+  chrome.storage.local.get(['viewers', 'logs', 'total90DayViews'], (data) => {
+    const allViewers = data.viewers || [];
+    const recentViewers = allViewers.slice(-20); // Show last 20 recent viewers (adjust as needed)
+    const total90DayViews = data.total90DayViews || 0;
 
-      logsConsole.innerHTML = (data.logs || []).map(log => 
-        `<div class="log-${log.level.toLowerCase()}">[${log.timestamp}] ${log.level}: ${log.message}</div>`
-      ).join('');
-      logsConsole.scrollTop = logsConsole.scrollHeight;
-    });
-  }
+    totalViewers.textContent = `Total Stored Viewers: ${allViewers.length}`; // Renamed for clarity
+    document.getElementById('total90Day').textContent = `Total Profile Views (90 Days): ${total90DayViews}`;
+
+    tableBody.innerHTML = recentViewers.map(v => `<tr><td>${v.name || 'N/A'}</td><td>${v.headline || 'N/A'}</td><td>${v.company || 'N/A'}</td><td>${v.timestamp || 'N/A'}</td></tr>`).join('');
+
+    logsConsole.innerHTML = (data.logs || []).map(log => 
+      `<div class="log-${log.level.toLowerCase()}">[${log.timestamp}] ${log.level}: ${log.message}</div>`
+    ).join('');
+    logsConsole.scrollTop = logsConsole.scrollHeight;
+  });
+}
 });
