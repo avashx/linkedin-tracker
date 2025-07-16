@@ -33,16 +33,17 @@ chrome.tabs.captureVisibleTab(tab.id, { format: 'png' }, (dataUrl) => {
   logToStorage('DEBUG', 'Screenshot saved as debug_screenshot.png');
 });
           chrome.tabs.sendMessage(tab.id, { action: 'scrape' }, (response) => {
-            if (response) {
-              chrome.storage.local.get('viewers', (data) => {
-                const viewers = data.viewers || [];
-                viewers.push(...response.viewers);
-                chrome.storage.local.set({ viewers });
-                logToStorage('INFO', `Scraped ${response.viewers.length} viewers`);
-              });
-            }
-            chrome.tabs.remove(tab.id);
-          });
+  if (response) {
+    chrome.storage.local.get(['viewers', 'total90DayViews'], (data) => {
+      const viewers = data.viewers || [];
+      viewers.push(...response.viewers); // Append new/recent viewers
+      const total90DayViews = response.total90DayViews || data.total90DayViews || 0;
+      chrome.storage.local.set({ viewers, total90DayViews });
+      logToStorage('INFO', `Scraped ${response.viewers.length} viewers. Total 90-day: ${total90DayViews}`);
+    });
+  }
+  chrome.tabs.remove(tab.id);
+});
           chrome.tabs.onUpdated.removeListener(listener);
         }
       });
